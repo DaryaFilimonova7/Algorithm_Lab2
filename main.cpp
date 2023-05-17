@@ -1,13 +1,38 @@
 #include "header.h"
 
+/* Прочитайте постфиксное выражение слева направо.
+ * Когда вы читаете число, положите его в стопку. Когда вы читаете операнд,
+ * извлеките из стека два верхних числа, примените к ним оператор
+ * и поместите результат на вершину стека. В конце результат
+ * выражения должен быть единственным числом в стеке.
+ * */
+
+class Stack {
+public:
+    List stack;  // стек как экземпляр списка
+    int size = 0;
+    void push(int x) {
+        stack.add_first(x);
+        size++;
+    }
+    Node* top() {
+        return stack.search_position(0);
+    }
+    void pop() {
+        stack.delete_position(0);
+        size--;
+    }
+};
+
 class Calculator
 {
-    List calc_stack;  // стек как экземпляр списка
 public:
     int calc(std::string);
+
 };
 
 int Calculator :: calc(std::string expr) {
+    Stack calc_stack;  // стек как экземпляр списка
     int len = expr.length();
     for (int i = 0; i < len; i++) {
         if (expr[i] == ' ') {
@@ -17,45 +42,54 @@ int Calculator :: calc(std::string expr) {
         else if (isdigit(expr[i])) {
             int x = 0;
             while (isdigit(expr[i])) {
-                x = x * 10 + (int)(expr[i] - '0'); // (int) приведение к типу int
-                // - '0' convert from char to int
+                x = x * 10 + (int)(expr[i] - '0'); // (int) приведение к типу int, - '0' convert from char to int
                 i++;
             }
-            i--; // возврат к оператору
-            calc_stack.add_first(x);
+            i--; // возврат к концу числа
+            calc_stack.push(x);
         }
             // считывание оператора
         else {
-            int a = calc_stack.search_position(0)->data;
-            calc_stack.delete_position(0);
+            int a = calc_stack.top()->data;
+            calc_stack.pop();
             int b = 0;
-            if (calc_stack.search_position(0) != nullptr) {
-                b = calc_stack.search_position(0)->data;
-                calc_stack.delete_position(0);
+            bool pos = false;
+            if (calc_stack.size != 0) {
+                b = calc_stack.top()->data;
+                calc_stack.pop();
+                pos = true;
             }
 
             if (expr[i] == '+') {
-                calc_stack.add_first(a+b);
+                calc_stack.push(a+b);
             }
             else if (expr[i] == '-') {
-                if (calc_stack.search_position(0) == nullptr) {
-                    calc_stack.add_first(0-a);
+                if (!pos) {
+                    // для случая, если первое число в выражении - отрицательное
+                    calc_stack.push(0-a);
                 }
                 else {
-                    calc_stack.add_first(b-a);
+                    if (expr[i+1]== '+' || expr[i+1]=='-' || expr[i+1]=='/' || expr[i+1]=='*') {
+                        calc_stack.push(a);
+                        calc_stack.push(0-b);
+                    }
+                    else {
+                        calc_stack.push(b-a);
+                    }
                 }
             }
             else if (expr[i] == '*') {
-                calc_stack.add_first(a*b);
+                calc_stack.push(a*b);
             }
             else if (expr[i] == '/') {
-                calc_stack.add_first(b/a);
+                calc_stack.push(b/a);
             }
         }
 
     }
-    if (calc_stack.search_position(1) == nullptr) {
-        return calc_stack.search_position(0)->data;
+    // Результат
+    if (calc_stack.size == 1) {
+        return calc_stack.top()->data;
     }
     else {
         std::cout << "Incorrect expression. ";
