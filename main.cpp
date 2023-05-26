@@ -50,6 +50,7 @@ int Calculator :: calc(std::string expr) {
         }
             // считывание оператора
         else {
+            // извлечение 2-х верхних чисел из стека
             int a = calc_stack.top()->data;
             calc_stack.pop();
             int b = 0;
@@ -69,6 +70,7 @@ int Calculator :: calc(std::string expr) {
                     calc_stack.push(0-a);
                 }
                 else {
+                    // отрицательные числа в выражении
                     if (expr[i+1]== '+' || expr[i+1]=='-' || expr[i+1]=='/' || expr[i+1]=='*') {
                         calc_stack.push(a);
                         calc_stack.push(0-b);
@@ -87,7 +89,7 @@ int Calculator :: calc(std::string expr) {
         }
 
     }
-    // Результат
+    // Результат - единственное оставшееся число в стеке
     if (calc_stack.size == 1) {
         return calc_stack.top()->data;
     }
