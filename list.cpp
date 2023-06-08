@@ -187,6 +187,7 @@ void List :: print_list()
 }
 
 
+// interface for single linked list
 int list() {
 
     // Создание экземпляра списка
